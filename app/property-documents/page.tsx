@@ -13,6 +13,10 @@ interface PropertyFiles {
   additionalDocs: File[];
 }
 
+type MultipleFileTypes = 'taxReceipts' | 'exteriorPhotos' | 'interiorPhotos' | 'additionalDocs';
+type SingleFileTypes = 'titleDeed';
+type FileTypes = MultipleFileTypes | SingleFileTypes;
+
 export default function PropertyDocuments() {
   const router = useRouter();
   const [applicationId, setApplicationId] = useState<string | null>(null);
@@ -46,19 +50,21 @@ export default function PropertyDocuments() {
     }
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: FileTypes) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    if (type === 'taxReceipts' || type === 'exteriorPhotos' || type === 'interiorPhotos' || type === 'additionalDocs') {
-      setFiles(prev => ({
-        ...prev,
-        [type]: [...prev[type as keyof typeof files], ...Array.from(selectedFiles)]
-      }));
-    } else {
+    if (type === 'titleDeed') {
       setFiles(prev => ({
         ...prev,
         [type]: selectedFiles[0]
+      }));
+    } else {
+      const fileType = type as MultipleFileTypes;
+      const newFiles = Array.from(selectedFiles) as File[];
+      setFiles(prev => ({
+        ...prev,
+        [fileType]: prev[fileType].concat(newFiles)
       }));
     }
   };
@@ -91,12 +97,12 @@ export default function PropertyDocuments() {
       // Update application progress
       updateApplicationProgress(
         applicationId,
-        'Verification',
-        65,
+        'Verification Scheduling',
+        60,
         { files }
       );
       
-      // Navigate to verification scheduling page
+      // Navigate to next page
       router.push(`/verification-scheduling?applicationId=${applicationId}`);
     }
   };
