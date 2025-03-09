@@ -73,19 +73,21 @@ export default function PropertyDocuments() {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, type: string) => {
+  const handleDrop = (e: React.DragEvent, type: FileTypes) => {
     e.preventDefault();
     const droppedFiles = e.dataTransfer.files;
 
-    if (type === 'taxReceipts' || type === 'exteriorPhotos' || type === 'interiorPhotos' || type === 'additionalDocs') {
-      setFiles(prev => ({
-        ...prev,
-        [type]: [...prev[type as keyof typeof files], ...Array.from(droppedFiles)]
-      }));
-    } else {
+    if (type === 'titleDeed') {
       setFiles(prev => ({
         ...prev,
         [type]: droppedFiles[0]
+      }));
+    } else {
+      const fileType = type as MultipleFileTypes;
+      const newFiles = Array.from(droppedFiles) as File[];
+      setFiles(prev => ({
+        ...prev,
+        [fileType]: prev[fileType].concat(newFiles)
       }));
     }
   };
@@ -277,7 +279,11 @@ export default function PropertyDocuments() {
               {/* Exterior Photos */}
               <div>
                 <h3 className="text-lg font-bold text-text-dark mb-4">Exterior Photos</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-[200px] flex items-center justify-center">
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-[200px] flex items-center justify-center"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'exteriorPhotos')}
+                >
                   <span className="text-4xl">🏢</span>
                 </div>
               </div>
@@ -285,7 +291,11 @@ export default function PropertyDocuments() {
               {/* Interior Photos */}
               <div>
                 <h3 className="text-lg font-bold text-text-dark mb-4">Interior Photos</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-[200px] flex items-center justify-center">
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-[200px] flex items-center justify-center"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'interiorPhotos')}
+                >
                   <span className="text-4xl">🏠</span>
                 </div>
               </div>
@@ -305,7 +315,11 @@ export default function PropertyDocuments() {
           </div>
 
           {/* Additional Documents Section */}
-          <div className="mb-8">
+          <div 
+            className="mb-8"
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, 'additionalDocs')}
+          >
             <h2 className="text-2xl font-bold text-text-dark mb-4">Additional Documents (if applicable)</h2>
             <div className="flex items-center space-x-4">
               <div className="flex-1">
